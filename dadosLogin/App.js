@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, ActivityIndicator, TouchableOpacity, Platform, StatusBar, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, TouchableOpacity, Platform, StatusBar, ImageBackground, TextInput} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { auth, firestore } from './firebaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -9,7 +9,6 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [usuario, setUsuario] = useState(null);
-  const [entrada, setEntrada] = useState('');
   const [mensagens, setMensagens] = useState([]);
   const [carregando, setCarregando] = useState(false);
 
@@ -74,22 +73,6 @@ export default function App() {
       .catch(error => alert(error.message));
   };
 
-  const enviarMensagem = async () => {
-    if (entrada && usuario) {
-      try {
-        await addDoc(collection(firestore, 'messages'), {
-          text: entrada,
-          createdAt: serverTimestamp(),
-          uid: usuario.uid
-        });
-        setEntrada('');
-        buscarMensagens();
-      } catch (error) {
-        console.error("Erro ao adicionar mensagem: ", error);
-      }
-    }
-  };
-
   const excluirMensagem = async (idMensagem) => {
     try {
       await deleteDoc(doc(firestore, 'messages', idMensagem));
@@ -99,14 +82,14 @@ export default function App() {
     }
   };
 
-
   return (
     <ImageBackground source={require('./assets/bground.png')} style={styles.container}>
       <StatusBar barStyle="dark-content" />
       {usuario ? (
         <>
           <Text style={styles.welcomeText}>Bem-vindo, {usuario.email}</Text>
-          <TextInput
+          {/* Remova ou comente a entrada de mensagem e o botão de envio */}
+          {/* <TextInput
             style={styles.input}
             placeholder="Digite uma mensagem"
             value={entrada}
@@ -115,7 +98,7 @@ export default function App() {
           <TouchableOpacity style={styles.botao} onPress={enviarMensagem}>
             <MaterialIcons name="send" size={24} color="white" />
             <Text style={styles.botaoTexto}>Enviar Mensagem</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity style={styles.botaoSair} onPress={sair}>
             <MaterialIcons name="logout" size={24} color="white" />
             <Text style={styles.botaoTexto}>Sair</Text>
@@ -128,7 +111,7 @@ export default function App() {
                 <View key={msg.id} style={styles.mensagemContainer}>
                   <Text style={styles.mensagemTexto}>{msg.text}</Text>
                   <Text style={styles.timestamp}>
-                    {new Date(msg.createdAt?.toDate()).toLocaleString()}
+                    {msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleString() : ''}
                   </Text>
                   <TouchableOpacity onPress={() => excluirMensagem(msg.id)} style={styles.excluirBotao}>
                     <MaterialIcons name="delete" size={24} color="white" />
